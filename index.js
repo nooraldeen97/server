@@ -114,6 +114,32 @@ async function getSpecificMovie(req,res){
     res.send(result.rows);
 }
 
+//http://localhost:3000/update/:id
+app.put("/update/:id",updateMovieHandler)
+
+async function updateMovieHandler(req,res){
+    let id=req.params.id;
+    let newComment=req.body.comment;
+    let sql = `UPDATE movies SET comment = '${newComment}'WHERE id=${id}`;
+    let result = await client.query(sql);
+    console.log("getting data")
+    res.send(result.rows);
+}
+
+
+//http://localhost:3000/delete/:id
+app.delete("/delete/:id",deleteMovieHandler)
+
+async function deleteMovieHandler(req,res){
+    let id=req.params.id;
+    let sql=`DELETE FROM movies WHERE id=${id}`;
+    let result=await client.query(sql);
+
+    res.send("the record deleted successfully")
+}
+
+
+
 //handle the 404 errors 
 app.use((req,res)=>{
     res.status(404).send({
@@ -137,7 +163,3 @@ client.connect()
         );
     })
 
-
-// app.listen(PORT,()=>{
-// console.log(`listening to the PORT ${PORT}`)
-// });
