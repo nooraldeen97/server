@@ -2,11 +2,17 @@ const express=require("express");
 const app=express()
 const axios=require("axios");
 const cors=require("cors");
+require('dotenv').config()
 const pg=require("pg");
 PORT=3000
 app.use(cors());
 
+app.use(express.json()); // this is important for using req.body
+
+const client = new pg.Client(process.env.DATABASE_URL);
+
 const data=require("./data.json");
+const req = require("express/lib/request");
 
 
 function Movies(data){
@@ -42,6 +48,11 @@ app.get('/favorite', (req, res) => {
 app.get('/trending',getFromApi)
 
 async function getFromApi(req,res){
+    // let sql = 'SELECT * FROM movies;'
+
+    // client.query(sql).then(results=> console.log('=====>',results.row))
+    req.body={name:"noor",age:"23"}
+    console.log(req.body)
    let theData=await axios.get("https://api.themoviedb.org/3/trending/all/week?api_key=37ddc7081e348bf246a42f3be2b3dfd0&language=en-US");    
    let newData=theData.data.results.map(element=>{
         return new Trending(element);
@@ -64,21 +75,69 @@ async function searchHandler(req,res){
     res.send(nObj);
 }
 
+
+//http://localhost:3000/addMovie
+app.post("/addMovie",addingMovies)
+
+async function addingMovies(req,res){
+
+     const {title ,release_date, poster_path ,overview ,comment}=req.body;
+
+    let sql = 'INSERT INTO movies (title, release_date, poster_path, overview, comment) VALUES ($1, $2, $3, $4, $5)';
+    let safeValues = [title, release_date, poster_path, overview, comment];
+    let result = await client.query(sql, safeValues);
+
+    res.send(result);
+}
+
+
+//http://localhost:3000/getMovies
+app.get("/getMovies",getAllMovies)
+
+
+async function getAllMovies(req,res){
+    let sql = 'SELECT * FROM movies';
+    let result = await client.query(sql);
+    console.log("getting data")
+    res.send(result.rows);
+}
+
+//http://localhost:3000/getMovies/:id
+app.get("/getMovies/:id",getSpecificMovie)
+
+async function getSpecificMovie(req,res){
+    let id=req.params.id;
+    console.log(req.params)
+    let sql = `SELECT * FROM movies WHERE id=${id}`;
+    let result = await client.query(sql);
+    console.log("getting data")
+    res.send(result.rows);
+}
+
 //handle the 404 errors 
 app.use((req,res)=>{
     res.status(404).send({
-        error:"somthing went wrong 404 Status !!!"
+        error:"something went wrong 404 Status !!!"
     });
 })
 
 //handle the 500 errors 
 app.use((err,req,res,next)=>{
     res.status(500).send({
-        error:"somthing went wrong 500 Status !!!"
+        error:"something went wrong 500 Status !!!"
     });
     
 })
 
-app.listen(PORT,()=>{
-console.log(`lisiting to the PORT ${PORT}`)
-});
+
+client.connect()
+    .then(() => {
+        app.listen(PORT, () =>
+            console.log(`listening on ${PORT}`)
+        );
+    })
+
+
+// app.listen(PORT,()=>{
+// console.log(`listening to the PORT ${PORT}`)
+// });
