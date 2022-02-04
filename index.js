@@ -4,6 +4,7 @@ const axios=require("axios");
 const cors=require("cors");
 require('dotenv').config()
 const pg=require("pg");
+PORT=process.env.PORT;
 app.use(cors());
 
 app.use(express.json()); // this is important for using req.body
@@ -157,7 +158,7 @@ app.use((err,req,res,next)=>{
 
 client.connect()
     .then(() => {
-        app.listen(process.env.PORT || 3000, () =>
+        app.listen(PORT, () =>
             console.log(`listening on ${PORT}`)
         );
     })
