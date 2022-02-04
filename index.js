@@ -9,7 +9,10 @@ app.use(cors());
 
 app.use(express.json()); // this is important for using req.body
 
-const client = new pg.Client(process.env.DATABASE_URL);
+const client = new pg.Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+})
 
 const data=require("./data.json");
 const req = require("express/lib/request");
