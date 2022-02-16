@@ -5,7 +5,7 @@ const cors=require("cors");
 require('dotenv').config()
 const pg=require("pg");
 PORT=process.env.PORT;
-app.use(cors());
+app.use(cors("*"));
 
 app.use(express.json()); // this is important for using req.body
 
@@ -51,11 +51,7 @@ app.get('/favorite', (req, res) => {
 app.get('/trending',getFromApi)
 
 async function getFromApi(req,res){
-    // let sql = 'SELECT * FROM movies;'
 
-    // client.query(sql).then(results=> console.log('=====>',results.row))
-    req.body={name:"noor",age:"23"}
-    console.log(req.body)
    let theData=await axios.get("https://api.themoviedb.org/3/trending/all/week?api_key=37ddc7081e348bf246a42f3be2b3dfd0&language=en-US");    
    let newData=theData.data.results.map(element=>{
         return new Trending(element);
