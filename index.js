@@ -51,13 +51,17 @@ app.get('/favorite', (req, res) => {
 app.get('/trending',getFromApi)
 
 async function getFromApi(req,res){
+try{
+    let theData=await axios.get("https://api.themoviedb.org/3/trending/all/week?api_key=37ddc7081e348bf246a42f3be2b3dfd0&language=en-US");    
+    let newData=theData.data.results.map(element=>{
+         return new Trending(element);
+     })
+ 
+     res.send(newData);
 
-   let theData=await axios.get("https://api.themoviedb.org/3/trending/all/week?api_key=37ddc7081e348bf246a42f3be2b3dfd0&language=en-US");    
-   let newData=theData.data.results.map(element=>{
-        return new Trending(element);
-    })
-
-    res.send(newData);
+}catch(error){
+    console.log(error)
+}
 }
 
 //http://localhost:3001/search?name=Harry
@@ -82,11 +86,16 @@ async function addingMovies(req,res){
 
      const {title ,release_date, poster_path ,overview ,comment}=req.body;
 
-    let sql = 'INSERT INTO movies (title, release_date, poster_path, overview, comment) VALUES ($1, $2, $3, $4, $5)';
-    let safeValues = [title, release_date, poster_path, overview, comment];
-    let result = await client.query(sql, safeValues);
+     try{
+         let sql = 'INSERT INTO movies (title, release_date, poster_path, overview, comment) VALUES ($1, $2, $3, $4, $5)';
+         let safeValues = [title, release_date, poster_path, overview, comment];
+         let result = await client.query(sql, safeValues);
+     
+         res.send(result);
 
-    res.send(result);
+     }catch(error){
+        console.log(error)
+     }
 }
 
 
