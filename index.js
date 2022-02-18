@@ -146,9 +146,11 @@ async function deleteMovieHandler(req,res){
     let id=req.params.id;
     try{
         let sql=`DELETE FROM movies WHERE id=${id}`;
-        let result=await client.query(sql);
+        await client.query(sql);
     
-        res.send(result.rows);
+        let sqlAll = 'SELECT * FROM movies';
+        let resultAll = await client.query(sqlAll);
+        res.send(resultAll.rows);
 
     }catch(error){
         console.log(error);
