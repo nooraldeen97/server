@@ -127,11 +127,15 @@ app.put("/update/:id",updateMovieHandler)
 
 async function updateMovieHandler(req,res){
     let id=req.params.id;
-    let newComment=req.body.comment;
-    let sql = `UPDATE movies SET comment = '${newComment}'WHERE id=${id}`;
-    let result = await client.query(sql);
-    console.log("getting data")
-    res.send(result.rows);
+    try{
+        let newComment=req.body.comment;
+        let sql = `UPDATE movies SET comment = '${newComment}'WHERE id=${id}`;
+        let result = await client.query(sql);
+        console.log("getting data")
+        res.send(result.rows);
+    }catch(error){
+        console.log(error);
+    }
 }
 
 
@@ -140,10 +144,15 @@ app.delete("/delete/:id",deleteMovieHandler)
 
 async function deleteMovieHandler(req,res){
     let id=req.params.id;
-    let sql=`DELETE FROM movies WHERE id=${id}`;
-    let result=await client.query(sql);
+    try{
+        let sql=`DELETE FROM movies WHERE id=${id}`;
+        let result=await client.query(sql);
+    
+        res.send(result.rows);
 
-    res.send(result.rows);
+    }catch(error){
+        console.log(error);
+    }
 }
 
 
